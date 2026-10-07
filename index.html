@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edukasi & Game Partai Politik Indonesia - Kelas 7, 8, 9 SMP</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+        }
+        h1, h2, h3, .font-fredoka {
+            font-family: 'Fredoka', cursive, sans-serif;
+        }
+        
+        /* Custom Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .animate-float {
+            animation: floatSlow 3.5s ease-in-out infinite;
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .bg-pattern {
+            background-color: #f8fafc;
+            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-pattern min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Logo & Brand -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-400 flex items-center justify-center text-white shadow-md text-xl font-bold">
+                    <i class="fa-solid me-0.5 fa-landmark"></i>
+                </div>
+                <div>
+                    <span class="font-fredoka text-xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">PARPOL.EDU</span>
+                    <span class="hidden sm:inline-block text-xs bg-red-100 text-red-700 font-semibold px-2 py-0.5 rounded-full ml-2">SMP Kelas 7, 8, 9</span>
+                </div>
+            </div>
+
+            <!-- Player Status & Controls -->
+            <div class="flex items-center gap-3">
+                <!-- Audio Controls -->
+                <button id="soundToggleBtn" onclick="toggleSound()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 text-sm font-semibold" title="Toggle Sound FX">
+                    <i id="soundIcon" class="fa-solid fa-volume-high text-red-500"></i>
+                    <span class="hidden md:inline">Suara</span>
+                </button>
+                <button id="ttsToggleBtn" onclick="toggleTTS()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 text-sm font-semibold" title="Toggle Voice Reader">
+                    <i id="ttsIcon" class="fa-solid fa-bullhorn text-amber-500"></i>
+                    <span class="hidden md:inline">Narator</span>
+                </button>
+
+                <!-- User Stats Badge -->
+                <div class="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 rounded-2xl shadow-sm text-sm font-bold">
+                    <i class="fa-solid fa-trophy text-amber-200"></i>
+                    <span id="playerScore">0</span> <span class="text-xs font-normal opacity-90">XP</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN NAVIGATION TABS -->
+    <nav class="bg-white border-b border-slate-200 px-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-start sm:justify-center gap-2 overflow-x-auto py-2.5 no-scrollbar">
+            <button onclick="switchTab('home')" id="tab-home" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition bg-red-500 text-white shadow-md">
+                <i class="fa-solid fa-house"></i> Beranda
+            </button>
+            <button onclick="switchTab('learn')" id="tab-learn" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-book-open"></i> Modul Belajar
+            </button>
+            <button onclick="switchTab('game1')" id="tab-game1" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-puzzle-piece"></i> Tebak Lambang
+            </button>
+            <button onclick="switchTab('game2')" id="tab-game2" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-compass"></i> Simulasi Demokrasi
+            </button>
+            <button onclick="switchTab('quiz')" id="tab-quiz" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-gamepad"></i> Kuis Arena
+            </button>
+            <button onclick="switchTab('gallery')" id="tab-gallery" class="nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100">
+                <i class="fa-solid fa-users-line"></i> Galeri Parpol
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+        <!-- VIEW 1: HOME PAGE -->
+        <section id="view-home" class="space-y-8 animate-pop">
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-red-600 via-rose-600 to-orange-500 text-white p-8 sm:p-12 shadow-xl">
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-block bg-white/20 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        🇮🇩 Pembelajaran Pendidikan Pancasila & Keharmonisan Demokrasi
+                    </span>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold leading-tight">
+                        Pahami Partai Politik & Menjadi Pemilih Cerdas!
+                    </h1>
+                    <p class="text-red-100 text-base sm:text-lg">
+                        Petualangan seru khusus siswa SMP untuk memahami peran partai politik, asas Pemilu (LUBER JURDIL), dan cara menjaga demokrasi Indonesia.
+                    </p>
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button onclick="switchTab('learn'); playAudioFX('click');" class="bg-white text-red-600 hover:bg-red-50 font-bold px-6 py-3.5 rounded-2xl shadow-lg transition hover:scale-105 flex items-center gap-2">
+                            <i class="fa-solid fa-play-circle text-xl"></i> Mulai Belajar Sekarang
+                        </button>
+                        <button onclick="switchTab('quiz'); playAudioFX('click');" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-6 py-3.5 rounded-2xl shadow-lg transition hover:scale-105 flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-xl"></i> Main Kuis Arena
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Floating Decor Icons -->
+                <div class="hidden lg:block absolute right-12 top-1/2 -translate-y-1/2 animate-float opacity-90">
+                    <div class="w-64 h-64 rounded-full bg-white/10 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center border border-white/20">
+                        <i class="fa-solid fa-box-archive text-7xl text-amber-300 mb-3"></i>
+                        <span class="font-fredoka text-xl font-bold">Kotak Suara Demokrasi</span>
+                        <span class="text-xs text-red-100 mt-1">Gunakan Hak Suara dengan Bijak!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Objective Cards for Class 7, 8, 9 -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer" onclick="switchTab('learn'); playAudioFX('click');">
+                    <div class="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center text-2xl font-bold mb-4">
+                        <i class="fa-solid fa-sitemap"></i>
+                    </div>
+                    <span class="text-xs font-bold text-red-500 uppercase">Kelas 7 & 8 SMP</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">Apa itu Partai Politik?</h3>
+                    <p class="text-slate-600 text-sm">
+                        Pelajari definisi, 5 fungsi utama Parpol, serta bagaimana Parpol menyalurkan aspirasi rakyat.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer" onclick="switchTab('learn'); playAudioFX('click');">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-2xl font-bold mb-4">
+                        <i class="fa-solid fa-check-to-slot"></i>
+                    </div>
+                    <span class="text-xs font-bold text-amber-600 uppercase">Kelas 8 SMP</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">Asas LUBER JURDIL</h3>
+                    <p class="text-slate-600 text-sm">
+                        Memahami 6 asas utama dalam Pemilu: Langsung, Umum, Bebas, Rahasia, Jujur, dan Adil!
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition cursor-pointer" onclick="switchTab('learn'); playAudioFX('click');">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl font-bold mb-4">
+                        <i class="fa-solid fa-timeline"></i>
+                    </div>
+                    <span class="text-xs font-bold text-emerald-600 uppercase">Kelas 9 SMP</span>
+                    <h3 class="text-xl font-bold text-slate-800 mt-1 mb-2">Sejarah Pemilu Indonesia</h3>
+                    <p class="text-slate-600 text-sm">
+                        Perjalanan sejarah Pemilu dari tahun 1955, masa Orde Baru, hingga era Reformasi dan Parpol modern.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Interactive Game Selector Banner -->
+            <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-lg relative overflow-hidden">
+                <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 text-center md:text-left">
+                        <h2 class="text-2xl sm:text-3xl font-bold">Siap Menguji Pengetahuanmu? 🎮</h2>
+                        <p class="text-slate-300 text-sm max-w-xl">
+                            Mainkan game pencocokan lambang parpol, simulasi petualangan suara pemilih muda, dan Kuis Arena Demokrasi!
+                        </p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="switchTab('game1'); playAudioFX('click');" class="bg-red-500 hover:bg-red-600 text-white font-bold px-5 py-3 rounded-2xl shadow transition">
+                            <i class="fa-solid fa-puzzle-piece"></i> Tebak Lambang
+                        </button>
+                        <button onclick="switchTab('game2'); playAudioFX('click');" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 py-3 rounded-2xl shadow transition">
+                            <i class="fa-solid fa-compass"></i> Petualangan
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 2: MODUL BELAJAR INTERAKTIF -->
+        <section id="view-learn" class="hidden space-y-6">
+            <!-- Header Module -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-3xl border border-slate-200">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-3">
+                        <i class="fa-solid fa-graduation-cap text-red-500"></i> Modul Belajar Digital Demokrasi
+                    </h2>
+                    <p class="text-slate-500 text-sm">Materi Pendidikan Pancasila & Kewarganegaraan (PPKn) SMP</p>
+                </div>
+                <!-- Speech Narration Quick Trigger -->
+                <button onclick="readCurrentModule()" class="bg-amber-100 hover:bg-amber-200 text-amber-800 font-bold px-4 py-2.5 rounded-2xl transition flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-volume-high text-amber-600"></i> Dengarkan Penjelasan Suara
+                </button>
+            </div>
+
+            <!-- Sub Tab Navigation for Modules -->
+            <div class="flex gap-2 overflow-x-auto pb-2 border-b border-slate-200">
+                <button onclick="showModuleTab('m1')" id="modtab-m1" class="mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white shadow">
+                    1. Definisi & Fungsi Parpol
+                </button>
+                <button onclick="showModuleTab('m2')" id="modtab-m2" class="mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    2. Asas LUBER JURDIL
+                </button>
+                <button onclick="showModuleTab('m3')" id="modtab-m3" class="mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    3. Sejarah Pemilu Indonesia
+                </button>
+                <button onclick="showModuleTab('m4')" id="modtab-m4" class="mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    4. Hak & Peran Siswa SMP
+                </button>
+            </div>
+
+            <!-- MODULE CONTENT CONTAINER -->
+            <div id="moduleContent" class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 space-y-6">
+                <!-- Dynamic Content Loaded via JS -->
+            </div>
+        </section>
+
+        <!-- VIEW 3: GAME 1 - TEBAK LAMBANG PARPOL -->
+        <section id="view-game1" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-puzzle-piece text-red-500"></i> Game Tebak & Cocokkan Parpol
+                    </h2>
+                    <p class="text-slate-500 text-sm">Hubungkan identitas parpol dengan ciri khas atau warna resminya!</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="text-xs text-slate-400 font-bold">SKOR GAME</div>
+                        <div id="g1Score" class="text-2xl font-extrabold text-red-500">0</div>
+                    </div>
+                    <button onclick="initGame1()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-2xl font-bold text-sm">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Game
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Board Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Side: Clues / Parties -->
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">1</span>
+                        Pilih Deskripsi Parpol:
+                    </h3>
+                    <div id="g1CluesContainer" class="space-y-3">
+                        <!-- Clues dynamic -->
+                    </div>
+                </div>
+
+                <!-- Right Side: Target Drop / Options -->
+                <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 space-y-4">
+                    <h3 class="font-bold text-slate-700 flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">2</span>
+                        Pilih Nama / Simbol Parpol yang Tepat:
+                    </h3>
+                    <div id="g1OptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Options dynamic -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: GAME 2 - PETUALANGAN DEMOKRASI -->
+        <section id="view-game2" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200">
+                <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-compass text-emerald-500"></i> Petualangan Suara Cerdas (Simulasi Demokrasi)
+                </h2>
+                <p class="text-slate-500 text-sm">Sebagai pemilih muda SMP, ambil keputusan bijak dalam menghadapi situasi seputar politik & Pemilu!</p>
+            </div>
+
+            <!-- Quest Simulation Box -->
+            <div class="bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden max-w-3xl mx-auto">
+                <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-6 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="simAvatar" class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl font-bold">
+                            👨‍🎓
+                        </div>
+                        <div>
+                            <div class="text-xs uppercase font-bold text-emerald-200">Skenario <span id="simStepNum">1</span>/4</div>
+                            <div id="simTitle" class="font-bold text-lg">Menghadapi Masa Kampanye</div>
+                        </div>
+                    </div>
+                    <div class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold" id="simKarma">
+                        Status Cerdas: 🌟 100
+                    </div>
+                </div>
+
+                <div class="p-6 space-y-6">
+                    <p id="simQuestionText" class="text-slate-700 text-base sm:text-lg font-medium leading-relaxed">
+                        Di media sosial, kamu melihat berita yang menjelekkan salah satu Partai Politik tanpa bukti yang jelas. Apa tindakan bijak yang akan kamu lakukan?
+                    </p>
+
+                    <!-- Options -->
+                    <div id="simOptionsContainer" class="space-y-3">
+                        <!-- Dynamic choices -->
+                    </div>
+
+                    <!-- Feedback Banner -->
+                    <div id="simFeedback" class="hidden p-4 rounded-2xl text-sm font-medium"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 5: KUIS ARENA DEMOKRASI -->
+        <section id="view-quiz" class="hidden space-y-6">
+            <!-- Quiz Card Header -->
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-gamepad text-amber-500"></i> Kuis Arena Parpol & Demokrasi
+                    </h2>
+                    <p class="text-slate-500 text-sm">Uji wawasanmu dan raih predikat **Duta Pemilih Cerdas SMP**!</p>
+                </div>
+                <div id="quizTimerBox" class="flex items-center gap-2 bg-amber-100 text-amber-800 font-bold px-4 py-2 rounded-2xl">
+                    <i class="fa-solid fa-stopwatch text-amber-600"></i> Waktu: <span id="quizTimer">15</span> detik
+                </div>
+            </div>
+
+            <!-- Quiz Arena Content -->
+            <div id="quizContainer" class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-md max-w-3xl mx-auto space-y-6">
+                <!-- Question Progress Bar -->
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-bold text-slate-500">
+                        <span>SOAL <span id="quizCurrentNum">1</span> DARI <span id="quizTotalNum">5</span></span>
+                        <span>STREAK: 🔥 <span id="quizStreak">0</span></span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div id="quizProgressBar" class="h-full bg-gradient-to-r from-red-500 to-amber-500 transition-all duration-300 w-1/5"></div>
+                    </div>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="quizQuestion" class="text-lg sm:text-xl font-bold text-slate-800 leading-snug">
+                    Soal kuis akan muncul di sini...
+                </h3>
+
+                <!-- Quiz Options -->
+                <div id="quizOptions" class="grid grid-cols-1 gap-3">
+                    <!-- Dynamic Options -->
+                </div>
+            </div>
+
+            <!-- Quiz Results Screen (Hidden initially) -->
+            <div id="quizResultBox" class="hidden bg-white p-8 rounded-3xl border border-slate-200 shadow-lg text-center max-w-xl mx-auto space-y-6">
+                <div class="w-20 h-20 rounded-full bg-amber-100 text-amber-500 text-4xl flex items-center justify-center mx-auto animate-bounce">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-3xl font-extrabold text-slate-800">Selamat! Kuis Selesai 🎉</h2>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                    <div class="text-sm text-slate-500">Skor Akhir Kamu:</div>
+                    <div id="finalScore" class="text-4xl font-extrabold text-red-500">0 XP</div>
+                    <div id="finalGrade" class="text-sm font-bold text-slate-700">Predikat: Pejuang Demokrasi</div>
+                </div>
+                <button onclick="startQuiz()" class="bg-red-500 hover:bg-red-600 text-white font-bold px-6 py-3 rounded-2xl shadow-md transition w-full">
+                    <i class="fa-solid fa-rotate-right"></i> Coba Kuis Lagi
+                </button>
+            </div>
+        </section>
+
+        <!-- VIEW 6: GALERI PARPOL INDONESIA -->
+        <section id="view-gallery" class="hidden space-y-6">
+            <div class="bg-white p-6 rounded-3xl border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-users-line text-blue-500"></i> Mengenal Parpol Peserta Pemilu di Indonesia
+                    </h2>
+                    <p class="text-slate-500 text-sm">Eksplorasi profil umum, simbol, dan asas dari berbagai partai politik nasional.</p>
+                </div>
+                <!-- Search Input -->
+                <div class="relative w-full md:w-64">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="gallerySearch" oninput="filterGallery()" placeholder="Cari nama parpol..." class="w-full pl-9 pr-4 py-2 rounded-2xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+                </div>
+            </div>
+
+            <!-- Party Cards Grid -->
+            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic cards populated via JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 space-y-2">
+            <p class="font-semibold text-slate-700">Aplikasi Edukasi Interaktif Demokrasi & Partai Politik Indonesia</p>
+            <p>Dirancang untuk Media Pembelajaran Siswa SMP Kelas 7, 8, dan 9 | Sesuai Kurikulum Merdeka Pendidikan Pancasila</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ==========================================================================
+           1. AUDIO ENGINE & SPEECH SYNTHESIS (Web Audio API & Web Speech)
+           ========================================================================== */
+        let soundEnabled = true;
+        let ttsEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('soundIcon');
+            icon.className = soundEnabled ? 'fa-solid fa-volume-high text-red-500' : 'fa-solid fa-volume-xmark text-slate-400';
+            playAudioFX('click');
+        }
+
+        function toggleTTS() {
+            ttsEnabled = !ttsEnabled;
+            const icon = document.getElementById('ttsIcon');
+            icon.className = ttsEnabled ? 'fa-solid fa-bullhorn text-amber-500' : 'fa-solid fa-bullhorn text-slate-400';
+            if (!ttsEnabled) {
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        function playAudioFX(type) {
+            if (!soundEnabled) return;
+            initAudio();
+            
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(800, now + 0.05);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                osc.start(now);
+                osc.stop(now + 0.05);
+            } else if (type === 'correct') {
+                // Happy chord
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.setValueAtTime(130, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'fanfare') {
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                }
+            }
+        }
+
+        function speakText(text) {
+            if (!ttsEnabled || !('speechSynthesis' in window)) return;
+            window.speechSynthesis.cancel(); // Stop active speech
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'id-ID';
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        /* ==========================================================================
+           2. GLOBAL STATE & NAVIGATION
+           ========================================================================== */
+        let playerScore = 0;
+
+        function addScore(points) {
+            playerScore += points;
+            document.getElementById('playerScore').textContent = playerScore;
+        }
+
+        function switchTab(viewId) {
+            window.speechSynthesis.cancel();
+            
+            // Hide all views
+            ['home', 'learn', 'game1', 'game2', 'quiz', 'gallery'].forEach(id => {
+                document.getElementById(`view-${id}`).classList.add('hidden');
+                document.getElementById(`tab-${id}`).className = 'nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition text-slate-600 hover:bg-slate-100';
+            });
+
+            // Show selected view
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            document.getElementById(`tab-${viewId}`).className = 'nav-btn px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition bg-red-500 text-white shadow-md';
+
+            // Trigger view initializations
+            if (viewId === 'learn') showModuleTab('m1');
+            if (viewId === 'game1') initGame1();
+            if (viewId === 'game2') initSim();
+            if (viewId === 'quiz') startQuiz();
+            if (viewId === 'gallery') renderGallery();
+        }
+
+        /* ==========================================================================
+           3. LEARNING MODULES DATA & CONTROLLER
+           ========================================================================== */
+        const moduleData = {
+            m1: {
+                title: "1. Apa itu Partai Politik & Fungsinya?",
+                content: `
+                    <div class="space-y-4">
+                        <p class="text-slate-700 leading-relaxed">
+                            <strong>Partai Politik (Parpol)</strong> adalah organisasi yang dibentuk oleh sekelompok warga negara Indonesia secara sukarela atas dasar kesamaan kehendak dan cita-cita untuk memperjuangkan kepentingan anggota, masyarakat, bangsa, dan negara melalui Pemilihan Umum (Pemilu).
+                        </p>
+                        
+                        <h4 class="font-bold text-slate-800 text-lg border-b pb-2">5 Fungsi Utama Partai Politik di Indonesia:</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div class="p-4 rounded-2xl bg-red-50 border border-red-200">
+                                <span class="font-bold text-red-600 block mb-1">📢 1. Pendidikan Politik</span>
+                                <span class="text-xs text-slate-600">Meningkatkan kesadaran hak dan kewajiban warga negara dalam kehidupan berbangsa.</span>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200">
+                                <span class="font-bold text-amber-600 block mb-1">🤝 2. Penyalur Aspirasi Rakyat</span>
+                                <span class="text-xs text-slate-600">Menghimpun dan memperjuangkan suara/pendapat masyarakat kepada pemerintah.</span>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-blue-50 border border-blue-200">
+                                <span class="font-bold text-blue-600 block mb-1">👔 3. Rekrutmen Politik</span>
+                                <span class="text-xs text-slate-600">Mencari dan menyiapkan calon pimpinan bangsa (Presiden, Anggota DPR/DPRD, Kepala Daerah).</span>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-200">
+                                <span class="font-bold text-emerald-600 block mb-1">⚖️ 4. Pengatur Konflik</span>
+                                <span class="text-xs text-slate-600">Membantu menyelesaikan perbedaan pendapat di masyarakat secara damai dan demokratis.</span>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-purple-50 border border-purple-200">
+                                <span class="font-bold text-purple-600 block mb-1">🔍 5. Pengawasan Politik</span>
+                                <span class="text-xs text-slate-600">Mengevaluasi dan mengawasi kebijakan pemerintah agar sesuai dengan undang-undang.</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            m2: {
+                title: "2. Asas Pemilihan Umum: LUBER JURDIL",
+                content: `
+                    <div class="space-y-4">
+                        <p class="text-slate-700 leading-relaxed">
+                            Pemilihan Umum di Indonesia diselenggarakan berdasarkan asas <strong>LUBER JURDIL</strong>. Asas ini menjamin Pemilu berjalan adil, jujur, dan demokratis.
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-red-500 text-xl mb-1">L - Langsung</div>
+                                <div class="text-xs text-slate-600">Rakyat memilih secara langsung tanpa diwakilkan oleh orang lain.</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-amber-500 text-xl mb-1">U - Umum</div>
+                                <div class="text-xs text-slate-600">Semua warga negara yang memenuhi syarat berhak memilih tanpa diskriminasi.</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-emerald-500 text-xl mb-1">B - Bebas</div>
+                                <div class="text-xs text-slate-600">Bebas menentukan pilihan tanpa tekanan atau paksaan dari siapapun.</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-blue-500 text-xl mb-1">R - Rahasia</div>
+                                <div class="text-xs text-slate-600">Pilihan pemilih dijamin rahasia dan tidak diketahui siapapun.</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-indigo-500 text-xl mb-1">JUR - Jujur</div>
+                                <div class="text-xs text-slate-600">Semua pihak bertindak jujur sesuai aturan undang-undang yang berlaku.</div>
+                            </div>
+                            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                                <div class="font-extrabold text-purple-500 text-xl mb-1">DIL - Adil</div>
+                                <div class="text-xs text-slate-600">Setiap pemilih dan peserta Pemilu mendapat perlakuan yang sama.</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            m3: {
+                title: "3. Sejarah Pemilu & Parpol di Indonesia",
+                content: `
+                    <div class="space-y-4">
+                        <div class="relative pl-6 border-l-4 border-red-500 space-y-6">
+                            <div>
+                                <span class="bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Tahun 1955</span>
+                                <h4 class="font-bold text-slate-800 mt-1">Pemilu Pertama Indonesia</h4>
+                                <p class="text-xs text-slate-600">Diikuti oleh puluhan partai politik dan dianggap sebagai salah satu Pemilu paling demokratis dalam sejarah Indonesia.</p>
+                            </div>
+                            <div>
+                                <span class="bg-amber-100 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">Era Orde Baru (1973 - 1998)</span>
+                                <h4 class="font-bold text-slate-800 mt-1">Penyederhanaan Partai (Fusi Parpol)</h4>
+                                <p class="text-xs text-slate-600">Partai politik disederhanakan menjadi 3 kontestan: PPP, Golkar, dan PDI.</p>
+                            </div>
+                            <div>
+                                <span class="bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">Era Reformasi (1999 - Sekarang)</span>
+                                <h4 class="font-bold text-slate-800 mt-1">Multi-Partai Modern</h4>
+                                <p class="text-xs text-slate-600">Sistem multi-partai dibuka kembali. Pemilihan Presiden dilakukan secara langsung oleh rakyat sejak tahun 2004.</p>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            m4: {
+                title: "4. Peran Siswa SMP dalam Demokrasi",
+                content: `
+                    <div class="space-y-4">
+                        <p class="text-slate-700 leading-relaxed">
+                            Meskipun siswa SMP belum memiliki hak pilih dalam Pemilu (syarat usia minimal 17 tahun), kalian bisa berlatih demokrasi di sekolah!
+                        </p>
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                            <h4 class="font-bold text-slate-800">Contoh Penerapan Demokrasi Siswa SMP:</h4>
+                            <ul class="list-disc list-inside text-sm text-slate-600 space-y-1">
+                                <li>Pemilihan Ketua OSIS dan Pengurus Kelas secara adil dan musyawarah.</li>
+                                <li>Menghargai perbedaan pendapat saat berdiskusi kelompok.</li>
+                                <li>Menolak berita bohong (hoaks) dan ujaran kebencian di media sosial.</li>
+                                <li>Mengikuti kegiatan debat siswa atau musyawarah kelas.</li>
+                            </ul>
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        let currentActiveModule = 'm1';
+
+        function showModuleTab(modKey) {
+            currentActiveModule = modKey;
+            
+            // Update button styles
+            ['m1', 'm2', 'm3', 'm4'].forEach(k => {
+                const btn = document.getElementById(`modtab-${k}`);
+                if (k === modKey) {
+                    btn.className = 'mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-red-500 text-white shadow';
+                } else {
+                    btn.className = 'mod-tab-btn px-4 py-2 rounded-xl text-sm font-bold bg-slate-100 text-slate-600 hover:bg-slate-200';
+                }
+            });
+
+            const data = moduleData[modKey];
+            document.getElementById('moduleContent').innerHTML = `
+                <h3 class="text-xl font-bold text-slate-800">${data.title}</h3>
+                ${data.content}
+            `;
+            
+            playAudioFX('click');
+        }
+
+        function readCurrentModule() {
+            const data = moduleData[currentActiveModule];
+            // Strip HTML tags for clean text reading
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = data.title + ". " + data.content;
+            const textToRead = tempDiv.textContent || tempDiv.innerText || "";
+            speakText(textToRead);
+        }
+
+        /* ==========================================================================
+           4. MINI GAME 1 ENGINE (TEBAK & COCOKKAN PARPOL)
+           ========================================================================== */
+        const g1Items = [
+            { id: 'pdi', name: 'PDI Perjuangan', clue: 'Partai berpancasila dengan lambang Banteng Moncong Putih.', color: 'border-red-500 text-red-600' },
+            { id: 'golkar', name: 'Partai Golkar', clue: 'Partai beridentitas warna kuning dengan lambang Pohon Beringin.', color: 'border-amber-500 text-amber-600' },
+            { id: 'gerindra', name: 'Partai Gerindra', clue: 'Partai dengan simbol Kepalanya Burung Garuda warna emas.', color: 'border-orange-500 text-orange-600' },
+            { id: 'pkb', name: 'Partai Kebangkitan Bangsa', clue: 'Partai berazas kebangsaan dengan warna hijau dan lambang Bintang Sembilan.', color: 'border-emerald-500 text-emerald-600' }
+        ];
+
+        let selectedClueId = null;
+        let g1Score = 0;
+
+        function initGame1() {
+            g1Score = 0;
+            document.getElementById('g1Score').textContent = g1Score;
+            selectedClueId = null;
+
+            const cluesContainer = document.getElementById('g1CluesContainer');
+            const optionsContainer = document.getElementById('g1OptionsContainer');
+
+            cluesContainer.innerHTML = '';
+            optionsContainer.innerHTML = '';
+
+            // Shuffle options
+            const shuffledOptions = [...g1Items].sort(() => Math.random() - 0.5);
+
+            g1Items.forEach((item, index) => {
+                const clueCard = document.createElement('div');
+                clueCard.id = `clue-${item.id}`;
+                clueCard.className = `p-4 rounded-2xl bg-white border-2 border-slate-200 hover:border-red-400 cursor-pointer transition text-sm font-medium text-slate-700 shadow-sm flex items-center justify-between`;
+                clueCard.onclick = () => selectClue(item.id);
+                clueCard.innerHTML = `
+                    <span>${index + 1}. ${item.clue}</span>
+                    <i class="fa-solid fa-chevron-right text-slate-300"></i>
+                `;
+                cluesContainer.appendChild(clueCard);
+            });
+
+            shuffledOptions.forEach(item => {
+                const optCard = document.createElement('button');
+                optCard.id = `opt-${item.id}`;
+                optCard.className = `p-4 rounded-2xl bg-white border-2 border-slate-200 hover:border-slate-400 font-bold text-center text-sm shadow-sm transition ${item.color}`;
+                optCard.onclick = () => checkG1Match(item.id);
+                optCard.textContent = item.name;
+                optionsContainer.appendChild(optCard);
+            });
+        }
+
+        function selectClue(id) {
+            playAudioFX('click');
+            selectedClueId = id;
+            g1Items.forEach(item => {
+                const card = document.getElementById(`clue-${item.id}`);
+                if (card) {
+                    if (item.id === id) {
+                        card.classList.add('border-red-500', 'bg-red-50');
+                    } else {
+                        card.classList.remove('border-red-500', 'bg-red-50');
+                    }
+                }
+            });
+        }
+
+        function checkG1Match(optionId) {
+            if (!selectedClueId) {
+                speakText("Pilih deskripsinya terlebih dahulu!");
+                return;
+            }
+
+            if (selectedClueId === optionId) {
+                playAudioFX('correct');
+                g1Score += 25;
+                addScore(25);
+                document.getElementById('g1Score').textContent = g1Score;
+
+                // Disable solved items
+                const clueCard = document.getElementById(`clue-${selectedClueId}`);
+                const optCard = document.getElementById(`opt-${optionId}`);
+                
+                if (clueCard) {
+                    clueCard.className = "p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-medium text-sm flex items-center justify-between opacity-60";
+                    clueCard.onclick = null;
+                }
+                if (optCard) {
+                    optCard.className = "p-4 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-700 font-bold text-center text-sm opacity-60 cursor-not-allowed";
+                    optCard.onclick = null;
+                }
+
+                selectedClueId = null;
+
+                if (g1Score >= 100) {
+                    playAudioFX('fanfare');
+                    speakText("Selamat! Kamu berhasil mencocokkan semua partai politik!");
+                }
+            } else {
+                playAudioFX('wrong');
+                speakText("Kurang tepat, coba lagi!");
+            }
+        }
+
+        /* ==========================================================================
+           5. MINI GAME 2 ENGINE (SIMULASI PETUALANGAN DEMOKRASI)
+           ========================================================================== */
+        const simScenarios = [
+            {
+                title: "1. Mengurai Berita Hoaks Kampanye",
+                avatar: "📱",
+                text: "Di grup media sosial kelas, ada temanmu menyebarkan postingan yang menjelekkan calon pengurus OSIS/partai politik tanpa fakta resmi. Apa tindakanmu?",
+                choices: [
+                    { text: "Laporkan postingan hoaks & ajak teman mengecek fakta di situs resmi.", score: 30, isBest: true, msg: "Langkah cerdas! Menangkal hoaks menjaga kedamaian demokrasi." },
+                    { text: "Langsung menyebarkan kembali ke grup lain agar ramai.", score: 0, isBest: false, msg: "Waduh! Menyebarkan berita bohong dapat merugikan orang lain." }
+                ]
+            },
+            {
+                title: "2. Menghargai Perbedaan Pilihan",
+                avatar: "🗣️",
+                text: "Sahabat dekatmu memiliki pilihan partai/calon yang berbeda dengan pilihanmu saat berdiskusi. Bagaimana kamu bersikap?",
+                choices: [
+                    { text: "Tetap berteman baik dan saling menghormati alasan pilihan masing-masing.", score: 30, isBest: true, msg: "Hebat! Perbedaan pendapat adalah wujud indahnya demokrasi." },
+                    { text: "Memusuhi dan tidak mau diajak belajar kelompok lagi.", score: 0, isBest: false, msg: "Demokrasi mengajarkan toleransi, bukan permusuhan!" }
+                ]
+            },
+            {
+                title: "3. Tolak Politizasi / Money Politics",
+                avatar: "🎁",
+                text: "Seseorang menawarkan hadiah atau uang agar kamu memengaruhi teman-temanmu memilih calon tertentu secara paksa. Apa reaksimu?",
+                choices: [
+                    { text: "Menolak tegas karena Pemilu harus jujur, adil, dan bebas paksaan.", score: 40, isBest: true, msg: "Sangat tepat! Asas JURDIL menolak segala bentuk politik uang." },
+                    { text: "Menerima hadiah tersebut lalu memaksa teman memilih.", score: 0, isBest: false, msg: "Tindakan ini melanggar asas LUBER JURDIL!" }
+                ]
+            }
+        ];
+
+        let simIndex = 0;
+
+        function initSim() {
+            simIndex = 0;
+            renderSimStep();
+        }
+
+        function renderSimStep() {
+            const data = simScenarios[simIndex];
+            document.getElementById('simStepNum').textContent = simIndex + 1;
+            document.getElementById('simTitle').textContent = data.title;
+            document.getElementById('simAvatar').textContent = data.avatar;
+            document.getElementById('simQuestionText').textContent = data.text;
+
+            const container = document.getElementById('simOptionsContainer');
+            container.innerHTML = '';
+            document.getElementById('simFeedback').className = 'hidden';
+
+            data.choices.forEach(choice => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-2xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/50 transition text-sm font-semibold text-slate-700 flex items-center justify-between";
+                btn.innerHTML = `
+                    <span>${choice.text}</span>
+                    <i class="fa-solid fa-circle-check text-slate-300"></i>
+                `;
+                btn.onclick = () => handleSimChoice(choice);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleSimChoice(choice) {
+            const fb = document.getElementById('simFeedback');
+            fb.classList.remove('hidden');
+
+            if (choice.isBest) {
+                playAudioFX('correct');
+                addScore(choice.score);
+                fb.className = "p-4 rounded-2xl bg-emerald-100 text-emerald-800 text-sm font-bold animate-pop";
+                fb.textContent = "✅ " + choice.msg;
+            } else {
+                playAudioFX('wrong');
+                fb.className = "p-4 rounded-2xl bg-rose-100 text-rose-800 text-sm font-bold animate-pop";
+                fb.textContent = "❌ " + choice.msg;
+            }
+
+            setTimeout(() => {
+                simIndex++;
+                if (simIndex < simScenarios.length) {
+                    renderSimStep();
+                } else {
+                    playAudioFX('fanfare');
+                    speakText("Selamat! Kamu telah menyelesaikan petualangan simulasi demokrasi!");
+                    document.getElementById('simQuestionText').textContent = "🎉 Kamu telah menyelesaikan seluruh skenario simulasi pemilih cerdas!";
+                    document.getElementById('simOptionsContainer').innerHTML = `
+                        <button onclick="initSim()" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold p-4 rounded-2xl w-full text-center">
+                            Ulangi Simulasi Petualangan
+                        </button>
+                    `;
+                }
+            }, 2500);
+        }
+
+        /* ==========================================================================
+           6. KUIS ARENA ENGINE
+           ========================================================================== */
+        const quizData = [
+            {
+                q: "Apa kepanjangan dari asas Pemilu 'LUBER JURDIL'?",
+                options: [
+                    "Langsung, Umum, Bebas, Rahasia, Jujur, dan Adil",
+                    "Luas, Bersama, Bebas, Rapi, Jujur, dan Disiplin",
+                    "Langsung, Utama, Bersatu, Rahasia, Jujur, dan Adil",
+                    "Lembaga, Umum, Bebas, Rakyat, Jujur, dan Damai"
+                ],
+                answer: 0
+            },
+            {
+                q: "Fungsi Partai Politik untuk merekrut dan menyiapkan calon pimpinan bangsa disebut...",
+                options: [
+                    "Pendidikan Politik",
+                    "Rekrutmen Politik",
+                    "Pengatur Konflik",
+                    "Sosialisasi Media"
+                ],
+                answer: 1
+            },
+            {
+                q: "Pemilihan Umum pertama di Indonesia yang diikuti banyak partai politik diselenggarakan pada tahun...",
+                options: ["1945", "1955", "1977", "1999"],
+                answer: 1
+            },
+            {
+                q: "Di sekolah, penerapan prinsip demokrasi dapat dilatih melalui kegiatan...",
+                options: [
+                    "Pemilihan Ketua OSIS secara musyawarah & pemungutan suara",
+                    "Memaksa teman mengikuti pendapat kita",
+                    "Menyebar gosip di media sosial",
+                    "Tidak mau bekerja sama dalam kelompok"
+                ],
+                answer: 0
+            },
+            {
+                q: "Lembaga independen yang bertugas menyelenggarakan Pemilihan Umum di Indonesia adalah...",
+                options: ["KPU (Komisi Pemilihan Umum)", "DPR", "MA", "Kemenpora"],
+                answer: 0
+            }
+        ];
+
+        let currentQuizIdx = 0;
+        let quizScore = 0;
+        let quizStreak = 0;
+        let quizTimerVal = 15;
+        let quizInterval = null;
+
+        function startQuiz() {
+            currentQuizIdx = 0;
+            quizScore = 0;
+            quizStreak = 0;
+            document.getElementById('quizContainer').classList.remove('hidden');
+            document.getElementById('quizResultBox').classList.add('hidden');
+            renderQuizQuestion();
+        }
+
+        function renderQuizQuestion() {
+            clearInterval(quizInterval);
+            quizTimerVal = 15;
+            document.getElementById('quizTimer').textContent = quizTimerVal;
+
+            const q = quizData[currentQuizIdx];
+            document.getElementById('quizCurrentNum').textContent = currentQuizIdx + 1;
+            document.getElementById('quizTotalNum').textContent = quizData.length;
+            document.getElementById('quizStreak').textContent = quizStreak;
+            document.getElementById('quizQuestion').textContent = q.q;
+
+            // Update Progress Bar
+            const progPercent = ((currentQuizIdx + 1) / quizData.length) * 100;
+            document.getElementById('quizProgressBar').style.width = `${progPercent}%`;
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "p-4 rounded-2xl border-2 border-slate-200 hover:border-red-500 hover:bg-red-50/50 transition font-medium text-slate-700 text-left text-sm flex items-center gap-3";
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-xl bg-slate-100 font-bold text-slate-600 flex items-center justify-center text-xs border">${String.fromCharCode(65 + idx)}</span>
+                    <span>${optText}</span>
+                `;
+                btn.onclick = () => answerQuiz(idx);
+                optionsContainer.appendChild(btn);
+            });
+
+            // Start countdown timer
+            quizInterval = setInterval(() => {
+                quizTimerVal--;
+                document.getElementById('quizTimer').textContent = quizTimerVal;
+                if (quizTimerVal <= 0) {
+                    clearInterval(quizInterval);
+                    playAudioFX('wrong');
+                    answerQuiz(-1); // Timeout
+                }
+            }, 1000);
+        }
+
+        function answerQuiz(selectedIdx) {
+            clearInterval(quizInterval);
+            const q = quizData[currentQuizIdx];
+
+            if (selectedIdx === q.answer) {
+                playAudioFX('correct');
+                quizStreak++;
+                const earned = 20 + (quizStreak * 5);
+                quizScore += earned;
+                addScore(earned);
+            } else {
+                playAudioFX('wrong');
+                quizStreak = 0;
+            }
+
+            currentQuizIdx++;
+            if (currentQuizIdx < quizData.length) {
+                setTimeout(renderQuizQuestion, 1000);
+            } else {
+                setTimeout(finishQuiz, 1000);
+            }
+        }
+
+        function finishQuiz() {
+            playAudioFX('fanfare');
+            document.getElementById('quizContainer').classList.add('hidden');
+            document.getElementById('quizResultBox').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = `${quizScore} XP`;
+
+            let grade = "Pejuang Demokrasi";
+            if (quizScore >= 100) grade = "🏆 Duta Pemilih Cerdas Utama";
+            else if (quizScore >= 60) grade = "🌟 Pengawal LUBER JURDIL";
+
+            document.getElementById('finalGrade').textContent = `Predikat: ${grade}`;
+            speakText(`Selamat! Kamu menyelesaikan kuis dengan skor ${quizScore} poin.`);
+        }
+
+        /* ==========================================================================
+           7. GALERI PARPOL INDONESIA
+           ========================================================================== */
+        const partyGallery = [
+            { name: "PDI Perjuangan", code: "PDIP", color: "bg-red-600", desc: "Partai Politik berlandaskan Ideologi Pancasila dengan lambang Banteng Moncong Putih." },
+            { name: "Partai Golkar", code: "GOLKAR", color: "bg-amber-500", desc: "Partai dengan ciri khas warna kuning dan simbol Pohon Beringin." },
+            { name: "Partai Gerindra", code: "GERINDRA", color: "bg-orange-600", desc: "Partai Gerakan Indonesia Raya dengan simbol Kepala Burung Garuda." },
+            { name: "PKB", code: "PKB", color: "bg-emerald-600", desc: "Partai Kebangkitan Bangsa bertemakan warna hijau dengan simbol Bintang Sembilan." },
+            { name: "Partai NasDem", code: "NASDEM", color: "bg-blue-600", desc: "Partai Nasional Demokrat mengusung gerakan perubahan untuk Indonesia." },
+            { name: "PKS", code: "PKS", color: "bg-amber-600", desc: "Partai Keadilan Sejahtera dengan lambang Bulan Sabit dan Padi." },
+            { name: "PAN", code: "PAN", color: "bg-sky-500", desc: "Partai Amanat Nasional dengan lambang Matahari Putih Bersinar." },
+            { name: "Partai Demokrat", code: "DEMOKRAT", color: "bg-blue-700", desc: "Partai dengan lambang Bintang Bintang Tiga Arah warna biru." }
+        ];
+
+        function renderGallery(filterText = '') {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '';
+
+            const filtered = partyGallery.filter(p => p.name.toLowerCase().includes(filterText.toLowerCase()));
+
+            filtered.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-4";
+                card.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl ${p.color} text-white font-black text-xl flex items-center justify-center shadow">
+                            ${p.code.substring(0, 3)}
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">${p.name}</h3>
+                            <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-semibold">Parpol Peserta Pemilu</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">${p.desc}</p>
+                    <button onclick="speakText('${p.name}. ${p.desc}')" class="text-xs font-bold text-red-500 hover:text-red-600 flex items-center gap-1.5 pt-2 border-t border-slate-100">
+                        <i class="fa-solid fa-volume-high"></i> Dengarkan Profil
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterGallery() {
+            const val = document.getElementById('gallerySearch').value;
+            renderGallery(val);
+        }
+
+        // Initialize on Load
+        window.onload = function() {
+            switchTab('home');
+        };
+    </script>
+</body>
+</html>
